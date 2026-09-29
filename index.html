@@ -1,0 +1,53 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Трёхмерная модель металлической кровати-чердака: лестница на торце у открытой стороны, раскос у стены</h2>
+<div id="wrap" style="position:relative;width:100%;height:440px;border-radius:12px;overflow:hidden;touch-action:none;cursor:grab"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+<button id="bm">Матрас и плита: вкл</button>
+<button id="bw">Стена: вкл</button>
+<button id="bv">Вид от лестницы</button>
+<button id="bs">Вид с открытой стороны</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const D={"b":[[0,50,0,50,4,1950],[-15,65,-15,65,0,4],[0,50,1510,1560,4,1950],[-15,65,1495,1575,0,4],[1960,2010,0,50,4,1950],[1945,2025,-15,65,0,4],[1960,2010,1510,1560,4,1950],[1945,2025,1495,1575,0,4],[50,1960,0,40,1400,1460],[50,1960,1520,1560,1400,1460],[0,40,50,1510,1400,1460],[1970,2010,50,1510,1400,1460],[400,440,45,1515,1403,1443],[400,440,40,65,1400,1403],[400,440,40,43,1400,1425],[400,440,1495,1520,1400,1403],[400,440,1517,1520,1400,1425],[790,830,45,1515,1403,1443],[790,830,40,65,1400,1403],[790,830,40,43,1400,1425],[790,830,1495,1520,1400,1403],[790,830,1517,1520,1400,1425],[1180,1220,45,1515,1403,1443],[1180,1220,40,65,1400,1403],[1180,1220,40,43,1400,1425],[1180,1220,1495,1520,1400,1403],[1180,1220,1517,1520,1400,1425],[1570,1610,45,1515,1403,1443],[1570,1610,40,65,1400,1403],[1570,1610,40,43,1400,1425],[1570,1610,1495,1520,1400,1403],[1570,1610,1517,1520,1400,1425],[40,80,50,1510,1439,1443],[40,44,50,1510,1403,1443],[1930,1970,50,1510,1439,1443],[1966,1970,50,1510,1403,1443],[0,20,50,1510,1665,1705],[1990,2010,50,1010,1665,1705],[50,1960,0,20,1665,1705],[50,1960,1540,1560,1665,1705],[0,20,50,1510,1910,1950],[1990,2010,50,1010,1910,1950],[50,1960,0,20,1910,1950],[50,1960,1540,1560,1910,1950],[0,20,50,1510,300,340],[1990,2010,50,1510,300,340],[50,1960,0,20,300,340],[2010,2050,970,1010,4,1950],[1990,2070,950,1030,0,4],[2010,2050,1520,1560,10,1460],[2010,2050,1010,1520,225,245],[2010,2050,1010,1520,470,490],[2010,2050,1010,1520,715,735],[2010,2050,1010,1520,960,980],[2010,2050,1010,1520,1205,1225]],"br":[[50,358],[1960,1198],[1960,1242],[50,402]],"g":[[50,1,20],[50,1,1540],[1960,-1,20],[1960,-1,1540]],"L":2010,"W":1560,"Z0":1400,"ZT":1460};
+const wrap=document.getElementById('wrap');
+const dark=(document.documentElement.dataset.mode||'')==='dark'||(!document.documentElement.dataset.mode&&matchMedia('(prefers-color-scheme: dark)').matches);
+const scene=new THREE.Scene();scene.background=new THREE.Color(dark?0x2a2a28:0xefece6);
+const cam=new THREE.PerspectiveCamera(40,wrap.clientWidth/440,0.05,50);
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(wrap.clientWidth,440);wrap.appendChild(R.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a7a66,0.75));
+const dl=new THREE.DirectionalLight(0xffffff,0.75);dl.position.set(3,5,-4);scene.add(dl);
+const dl2=new THREE.DirectionalLight(0xffffff,0.3);dl2.position.set(-4,3,2);scene.add(dl2);
+const s=0.001,L=D.L,W=D.W,ZT=D.ZT;
+const P=(x,y,z)=>new THREE.Vector3((x-L/2)*s,z*s,(W/2-y)*s);
+const metal=new THREE.MeshStandardMaterial({color:0x26282b,metalness:0.45,roughness:0.5});
+function box(x0,x1,y0,y1,z0,z1,m){const g=new THREE.BoxGeometry((x1-x0)*s,(z1-z0)*s,(y1-y0)*s);const o=new THREE.Mesh(g,m);o.position.copy(P((x0+x1)/2,(y0+y1)/2,(z0+z1)/2));scene.add(o);return o;}
+D.b.forEach(b=>box(...b,metal));
+function prism(pts,y0,y1){const sh=new THREE.Shape();pts.forEach((p,i)=>{const X=(p[0]-L/2)*s,Y=p[1]*s;i?sh.lineTo(X,Y):sh.moveTo(X,Y);});const g=new THREE.ExtrudeGeometry(sh,{depth:(y1-y0)*s,bevelEnabled:false});const o=new THREE.Mesh(g,metal);o.position.z=(W/2-y1)*s;scene.add(o);}
+prism(D.br,0,20);
+D.g.forEach(([x,sg,yc])=>prism([[x,D.Z0],[x+sg*150,D.Z0],[x,D.Z0-150]],yc-2,yc+2));
+const soft=[];
+soft.push(box(55,1955,70,1490,ZT-17,ZT+3,new THREE.MeshStandardMaterial({color:0xc9a877,roughness:0.9})));
+soft.push(box(58,1952,58,1502,ZT+3,ZT+200,new THREE.MeshStandardMaterial({color:0xe9e4da,roughness:1})));
+soft.push(box(150,650,250,700,ZT+200,ZT+290,new THREE.MeshStandardMaterial({color:0xb98f86,roughness:1})));
+soft.push(box(150,650,850,1300,ZT+200,ZT+290,new THREE.MeshStandardMaterial({color:0x6d5a7a,roughness:1})));
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.MeshStandardMaterial({color:dark?0x5a4a3a:0xa8784c,roughness:0.9}));floor.rotation.x=-Math.PI/2;scene.add(floor);
+const walls=[];
+const wm=new THREE.MeshStandardMaterial({color:dark?0x6e6558:0xd8c7a4,roughness:1,side:THREE.DoubleSide});
+let w1=new THREE.Mesh(new THREE.PlaneGeometry(4.5,2.7),wm);w1.position.set(0.2,1.35,W/2*s+0.006);scene.add(w1);walls.push(w1);
+let w2=new THREE.Mesh(new THREE.PlaneGeometry(3.2,2.7),wm);w2.rotation.y=Math.PI/2;w2.position.set(-L/2*s-0.08,1.35,-0.8);scene.add(w2);walls.push(w2);
+let win=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.4),new THREE.MeshStandardMaterial({color:0xcfe3ee,roughness:0.3,side:THREE.DoubleSide}));win.rotation.y=Math.PI/2;win.position.set(-L/2*s-0.075,1.55,-0.3);scene.add(win);walls.push(win);
+let th=-0.75,ph=1.18,rad=4.3;const tgt=new THREE.Vector3(0.1,0.95,0);
+function upd(){cam.position.set(tgt.x+rad*Math.sin(ph)*Math.cos(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.sin(th));cam.lookAt(tgt);R.render(scene,cam);}
+let drag=null;
+R.domElement.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];wrap.style.cursor='grabbing';R.domElement.setPointerCapture(e.pointerId);});
+R.domElement.addEventListener('pointermove',e=>{if(!drag)return;th+=(e.clientX-drag[0])*0.008;ph=Math.min(1.55,Math.max(0.2,ph-(e.clientY-drag[1])*0.006));drag=[e.clientX,e.clientY];upd();});
+R.domElement.addEventListener('pointerup',()=>{drag=null;wrap.style.cursor='grab';});
+R.domElement.addEventListener('wheel',e=>{e.preventDefault();rad=Math.min(8,Math.max(2,rad+e.deltaY*0.003));upd();},{passive:false});
+let ms=true,ws=true;
+document.getElementById('bm').onclick=function(){ms=!ms;soft.forEach(o=>o.visible=ms);this.textContent='Матрас и плита: '+(ms?'вкл':'выкл');upd();};
+document.getElementById('bw').onclick=function(){ws=!ws;walls.forEach(o=>o.visible=ws);this.textContent='Стена: '+(ws?'вкл':'выкл');upd();};
+document.getElementById('bv').onclick=()=>{th=-0.12;ph=1.3;rad=4.3;upd();};
+document.getElementById('bs').onclick=()=>{th=-1.45;ph=1.3;rad=4.3;upd();};
+new ResizeObserver(()=>{cam.aspect=wrap.clientWidth/440;cam.updateProjectionMatrix();R.setSize(wrap.clientWidth,440);upd();}).observe(wrap);
+upd();
+</script>
