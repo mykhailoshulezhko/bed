@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кровать-чердак 3D</title>
+</head>
+<body>
 <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Трёхмерная модель металлической кровати-чердака: лестница на торце у открытой стороны, раскос у стены</h2>
 <div id="wrap" style="position:relative;width:100%;height:440px;border-radius:12px;overflow:hidden;touch-action:none;cursor:grab"></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
@@ -50,4 +58,5 @@ document.getElementById('bv').onclick=()=>{th=-0.12;ph=1.3;rad=4.3;upd();};
 document.getElementById('bs').onclick=()=>{th=-1.45;ph=1.3;rad=4.3;upd();};
 new ResizeObserver(()=>{cam.aspect=wrap.clientWidth/440;cam.updateProjectionMatrix();R.setSize(wrap.clientWidth,440);upd();}).observe(wrap);
 upd();
-</script>
+</script></body>
+</html>
